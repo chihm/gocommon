@@ -11,7 +11,7 @@ type ResponseError struct {
 	Message string `json:"message"`
 }
 
-const (
+var (
 	StatusBadRequest          = 40000
 	StatusInternalServerError = 50000
 	StatusOk                  = 20000
@@ -33,10 +33,22 @@ func Success(data interface{}) *Response {
 	}
 }
 
-func Error(code int, message string) *ResponseError {
+func NewError(code int, message string) *ResponseError {
 	return &ResponseError{
 		Code:    code,
 		Message: message,
+	}
+}
+
+func Error(code int, err error) *ResponseError {
+	switch e := err.(type) {
+	case *ResponseError:
+		return e
+	default:
+		return &ResponseError{
+			Code:    code,
+			Message: e.Error(),
+		}
 	}
 }
 
